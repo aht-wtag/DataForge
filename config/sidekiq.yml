@@ -1,0 +1,22 @@
+:concurrency: <%= ENV.fetch("SIDEKIQ_CONCURRENCY") { 5 } %>
+:queues:
+  - ETL
+  - default
+  - mailers
+:scheduler:
+  :schedule:
+    schedule_manager:
+      cron: "*/1 * * * *"
+      class: "ScheduleManagerWorker"
+      queue: default
+      enabled: false
+    log_cleanup:
+      cron: "0 3 * * *"
+      class: "LogCleanupWorker"
+      queue: default
+      enabled: false
+    export_cleanup:
+      cron: "0 4 * * *"
+      class: "ExportCleanupWorker"
+      queue: default
+      enabled: false

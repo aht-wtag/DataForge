@@ -1,0 +1,127 @@
+services:
+  db:
+    image: postgres:16.2-alpine
+    container_name: dataforge_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - dataforge_net
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: dataforge_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dataforge_net
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: dataforge_web
+    restart: unless-stopped
+    environment:
+      RAILS_ENV: ${RAILS_ENV:-development}
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST:-db}:${POSTGRES_PORT:-5432}/${POSTGRES_DB}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+      WEB_CONCURRENCY: 2
+      RAILS_LOG_LEVEL: debug
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - bundle_cache:/usr/local/bundle
+    networks:
+      - dataforge_net
+
+  sidekiq:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: dataforge_sidekiq
+    restart: unless-stopped
+    environment:
+      RAILS_ENV: ${RAILS_ENV:-development}
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST:-db}:${POSTGRES_PORT:-5432}/${POSTGRES_DB}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
+      SIDEKIQ_CONCURRENCY: ${SIDEKIQ_CONCURRENCY:-5}
+    command: bundle exec sidekiq -c ${SIDEKIQ_CONCURRENCY:-5} -q default -q mailers -q ETL
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - bundle_cache:/usr/local/bundle
+    networks:
+      - dataforge_net
+
+  sidekiq_scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: dataforge_sidekiq_scheduler
+    restart: unless-stopped
+    environment:
+      RAILS_ENV: ${RAILS_ENV:-development}
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST:-db}:${POSTGRES_PORT:-5432}/${POSTGRES_DB}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
+    command: bundle exec sidekiq -C config/sidekiq.yml
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - bundle_cache:/usr/local/bundle
+    networks:
+      - dataforge_net
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  bundle_cache:
+    driver: local
+
+networks:
+  dataforge_net:
+    driver: bridge

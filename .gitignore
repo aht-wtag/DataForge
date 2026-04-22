@@ -1,0 +1,57 @@
+# --- Ruby / Rails ---
+/.bundle/
+/vendor/bundle/
+/log/*
+/tmp/*
+/storage/*
+.byebug_history
+*.swp
+*.swo
+*~
+
+# --- Environment ---
+.env
+.env.local
+.env.*.local
+
+# --- Docker ---
+docker-data/
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+
+# --- IDE ---
+.idea/
+.vscode/
+*.code-workspace
+
+# --- Coverage ---
+coverage/
+
+# --- Node (if using importmap/stimulus) ---
+/node_modules/
+/yarn-error.log
+/yarn-debug.log
+/.yarn-integrity
+
+# --- Asset pipeline ---
+/public/assets
+/public/packs
+/public/packs-test
+
+# --- Active Storage uploads (local dev) ---
+/storage/local/
+
+# --- Master key ---
+/config/master.key
+/config/credentials/*.key
+
+# --- Memory / Planning ---
+/memory/
+
+# Ignore master key for decrypting credentials and more.
+/config/master.key
+
+/app/assets/builds/*
+!/app/assets/builds/.keep
