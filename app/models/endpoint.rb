@@ -4,7 +4,7 @@ class Endpoint < ApplicationRecord
   has_many :execution_logs, dependent: :destroy
   has_many :stored_data, dependent: :destroy
 
-  enum http_method: { get: 0, post: 1, put: 2, patch: 3, delete: 4 }
+  enum http_method: { get: 0, post: 1, put: 2, patch: 3, delete: 4 }, _prefix: true
 
   validates :http_method, :path, :name, presence: true
   validates :path, format: { with: %r{\A/} }
