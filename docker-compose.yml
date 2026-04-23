@@ -42,11 +42,12 @@ services:
       context: .
       dockerfile: Dockerfile
       target: development
+    command: bash -c "rm -f tmp/pids/server.pid && bin/rails tailwindcss:watch & bin/rails server -b 0.0.0.0 -p 3000"
     container_name: dataforge_web
     restart: unless-stopped
     environment:
       RAILS_ENV: ${RAILS_ENV:-development}
-      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST:-db}:${POSTGRES_PORT:-5432}/${POSTGRES_DB}
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST:-db}:${POSTGRES_INTERNAL_PORT:-5432}/${POSTGRES_DB}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
       RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
       SECRET_KEY_BASE: ${SECRET_KEY_BASE}
@@ -74,7 +75,7 @@ services:
     restart: unless-stopped
     environment:
       RAILS_ENV: ${RAILS_ENV:-development}
-      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST:-db}:${POSTGRES_PORT:-5432}/${POSTGRES_DB}
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST:-db}:${POSTGRES_INTERNAL_PORT:-5432}/${POSTGRES_DB}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
       RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
       SIDEKIQ_CONCURRENCY: ${SIDEKIQ_CONCURRENCY:-5}
@@ -99,7 +100,7 @@ services:
     restart: unless-stopped
     environment:
       RAILS_ENV: ${RAILS_ENV:-development}
-      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST:-db}:${POSTGRES_PORT:-5432}/${POSTGRES_DB}
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST:-db}:${POSTGRES_INTERNAL_PORT:-5432}/${POSTGRES_DB}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
       RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
     command: bundle exec sidekiq -C config/sidekiq.yml
