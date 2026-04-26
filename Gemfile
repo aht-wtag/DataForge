@@ -68,5 +68,6 @@ group :development do
 end
 
 group :test do
+  gem "pundit-matchers", "~> 3.1"
   gem "simplecov", require: false
 end
