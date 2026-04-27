@@ -2,9 +2,7 @@
   <nav class="space-y-1">
     <%= sidebar_link_to "Dashboard", root_path, icon: "home" %>
 
-    <% if respond_to?(:adapters_path) %>
-      <%= sidebar_link_to "Adapters", adapters_path, icon: "plug" %>
-    <% end %>
+    <%= sidebar_link_to "Adapters", adapters_path, icon: "plug" %>
 
     <% if respond_to?(:execution_logs_path) && policy(:execution_log).index? %>
       <%= sidebar_link_to "Execution Logs", execution_logs_path, icon: "document" %>

@@ -17,7 +17,7 @@
         <%= render "shared/sidebar" %>
         <main class="flex-1 p-6">
           <%= render "shared/flash_messages" %>
-          <%= yield %>
+          <%= content_for?(:content) ? yield(:content) : yield %>
         </main>
       </div>
     <% else %>

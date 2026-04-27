@@ -1,0 +1,85 @@
+<% page_title "Adapters" %>
+
+<div class="space-y-6">
+  <div class="sm:flex sm:items-center sm:justify-between">
+    <h1 class="text-2xl font-bold text-gray-900">Adapters</h1>
+    <% if policy(Adapter).create? && @adapters.any? %>
+      <%= link_to "New Adapter", new_adapter_path,
+            class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700" %>
+    <% end %>
+  </div>
+
+  <% if @adapters.any? %>
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Base URL</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Endpoints</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @adapters.each do |adapter| %>
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div>
+                    <div class="text-sm font-medium text-gray-900">
+                      <%= link_to adapter.name, adapter_path(adapter), class: "hover:text-blue-600" %>
+                    </div>
+                    <% if adapter.description.present? %>
+                      <div class="text-sm text-gray-500 truncate max-w-xs"><%= adapter.description.truncate(50) %></div>
+                    <% end %>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <span class="font-mono text-xs"><%= adapter.base_url %></span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <% if adapter.archived? %>
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Archived</span>
+                <% else %>
+                  <%= render "shared/status_badge", status: adapter.status %>
+                <% end %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <%= adapter.endpoints.count %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <%= adapter.created_at.strftime("%b %d, %Y") %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+                <div class="flex justify-end space-x-2">
+                  <%= link_to "Edit", edit_adapter_path(adapter),
+                        class: "text-blue-600 hover:text-blue-900" %>
+                  <% unless adapter.archived? %>
+                    <%= button_to "Archive", archive_adapter_path(adapter), method: :patch,
+                          form: { data: { turbo_confirm: "Are you sure you want to archive this adapter?" } },
+                          class: "text-red-600 hover:text-red-900 bg-transparent border-0 cursor-pointer" %>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <% if @adapters.total_pages > 1 %>
+      <div class="mt-4">
+        <%= paginate @adapters %>
+      </div>
+    <% end %>
+  <% else %>
+    <%= render "shared/empty_state",
+          title: "No adapters yet",
+          description: "Create your first adapter to start connecting to external data sources.",
+          button_text: "New Adapter",
+          button_path: new_adapter_path %>
+  <% end %>
+</div>

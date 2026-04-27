@@ -1,0 +1,79 @@
+<% page_title "Endpoints — #{@adapter.name}" %>
+
+<div class="space-y-6">
+  <div class="sm:flex sm:items-center sm:justify-between">
+    <h1 class="text-2xl font-bold text-gray-900">Endpoints</h1>
+    <% if policy(Endpoint).create? && @endpoints.any? %>
+      <%= link_to "New Endpoint", new_adapter_endpoint_path(@adapter),
+            class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700" %>
+    <% end %>
+  </div>
+
+  <% if @endpoints.any? %>
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Method</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Path</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Enabled</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rules</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @endpoints.each do |endpoint| %>
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <% method_colors = { get: "bg-green-100 text-green-800", post: "bg-blue-100 text-blue-800", put: "bg-yellow-100 text-yellow-800", patch: "bg-orange-100 text-orange-800", delete: "bg-red-100 text-red-800" } %>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-bold uppercase <%= method_colors[endpoint.http_method.to_sym] || 'bg-gray-100 text-gray-800' %>">
+                  <%= endpoint.http_method.upcase %>
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900">
+                  <%= link_to endpoint.name, adapter_endpoint_path(@adapter, endpoint), class: "hover:text-blue-600" %>
+                </div>
+                <% if endpoint.description.present? %>
+                  <div class="text-sm text-gray-500 truncate max-w-xs"><%= endpoint.description.truncate(50) %></div>
+                <% end %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
+                <%= endpoint.path %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <% if endpoint.enabled? %>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Enabled</span>
+                <% else %>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Disabled</span>
+                <% end %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <%= endpoint.transformation_rules.count %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+                <div class="flex justify-end space-x-2">
+                  <%= link_to "Edit", edit_adapter_endpoint_path(@adapter, endpoint),
+                        class: "text-blue-600 hover:text-blue-900" %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <% if @endpoints.total_pages > 1 %>
+      <div class="mt-4">
+        <%= paginate @endpoints %>
+      </div>
+    <% end %>
+  <% else %>
+    <%= render "shared/empty_state",
+          title: "No endpoints yet",
+          description: "Add endpoints to define the API calls this adapter will make.",
+          button_text: "New Endpoint",
+          button_path: new_adapter_endpoint_path(@adapter) %>
+  <% end %>
+</div>

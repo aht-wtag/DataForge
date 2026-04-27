@@ -1,0 +1,93 @@
+<% page_title @endpoint.name %>
+
+<div class="space-y-6">
+  <div class="bg-white shadow rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+      <h3 class="text-lg font-medium text-gray-900 mb-4">Endpoint Details</h3>
+      <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Name</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @endpoint.name %></dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500">HTTP Method</dt>
+          <dd class="mt-1">
+            <% method_colors = { get: "bg-green-100 text-green-800", post: "bg-blue-100 text-blue-800", put: "bg-yellow-100 text-yellow-800", patch: "bg-orange-100 text-orange-800", delete: "bg-red-100 text-red-800" } %>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-bold uppercase <%= method_colors[@endpoint.http_method.to_sym] %>">
+              <%= @endpoint.http_method.upcase %>
+            </span>
+          </dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Path</dt>
+          <dd class="mt-1 text-sm text-gray-900 font-mono"><%= @endpoint.path %></dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Enabled</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @endpoint.enabled? ? "Yes" : "No" %></dd>
+        </div>
+        <div class="sm:col-span-2">
+          <dt class="text-sm font-medium text-gray-500">Description</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @endpoint.description.presence || "—" %></dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+
+  <div class="bg-white shadow rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-medium text-gray-900">Transformation Rules</h3>
+        <% if policy(TransformationRule).create? %>
+          <%= link_to "New Rule", new_adapter_endpoint_transformation_rule_path(@adapter, @endpoint),
+                class: "inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700" %>
+        <% end %>
+      </div>
+
+      <% if @transformation_rules.any? %>
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">#</th>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Source Path</th>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Target Field</th>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Enabled</th>
+              <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @transformation_rules.each do |rule| %>
+              <tr class="hover:bg-gray-50">
+                <td class="px-4 py-2 text-sm text-gray-500"><%= rule.position %></td>
+                <td class="px-4 py-2 text-sm text-gray-900 font-mono"><%= rule.source_path %></td>
+                <td class="px-4 py-2 text-sm text-gray-900 font-mono"><%= rule.target_field %></td>
+                <td class="px-4 py-2">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                    <%= rule.target_type %>
+                  </span>
+                </td>
+                <td class="px-4 py-2 text-sm">
+                  <%= rule.enabled? ? "Yes" : "No" %>
+                </td>
+                <td class="px-4 py-2 text-right text-sm">
+                  <%= link_to "Edit", edit_adapter_endpoint_transformation_rule_path(@adapter, @endpoint, rule),
+                        class: "text-blue-600 hover:text-blue-900" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <p class="text-sm text-gray-500 text-center py-4">No transformation rules defined yet.</p>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="flex justify-start space-x-3">
+    <%= link_to "Edit Endpoint", edit_adapter_endpoint_path(@adapter, @endpoint),
+          class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" %>
+    <%= link_to "Back to Adapter", adapter_path(@adapter),
+          class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" %>
+  </div>
+</div>
