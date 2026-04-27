@@ -3,5 +3,7 @@ Rails.application.routes.draw do
 
   devise_for :users
 
+  get "check_email", to: "email_check#show"
+
   root "dashboard#index"
 end

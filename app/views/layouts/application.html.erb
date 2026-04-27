@@ -22,7 +22,10 @@
       </div>
     <% else %>
       <main class="flex items-center justify-center min-h-screen">
-        <%= yield %>
+        <div class="w-full max-w-md px-4">
+          <%= render "shared/flash_messages" %>
+          <%= yield %>
+        </div>
       </main>
     <% end %>
   </body>
