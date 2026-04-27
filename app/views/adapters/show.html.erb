@@ -1,0 +1,93 @@
+<% page_title @adapter.name %>
+
+<div class="space-y-6">
+  <div class="grid grid-cols-1 gap-5 sm:grid-cols-4">
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <p class="text-sm font-medium text-gray-500 truncate">Endpoints</p>
+        <p class="mt-1 text-3xl font-semibold text-gray-900"><%= @endpoints_count %></p>
+      </div>
+    </div>
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <p class="text-sm font-medium text-gray-500 truncate">Credentials</p>
+        <p class="mt-1 text-3xl font-semibold text-gray-900"><%= @credentials_count %></p>
+      </div>
+    </div>
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <p class="text-sm font-medium text-gray-500 truncate">Schedules</p>
+        <p class="mt-1 text-3xl font-semibold text-gray-900"><%= @schedules_count %></p>
+      </div>
+    </div>
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <p class="text-sm font-medium text-gray-500 truncate">Status</p>
+        <div class="mt-1"><%= render "shared/status_badge", status: @adapter.status %></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white shadow rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+      <h3 class="text-lg font-medium text-gray-900 mb-4">Adapter Details</h3>
+      <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Name</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @adapter.name %></dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Base URL</dt>
+          <dd class="mt-1 text-sm text-gray-900 font-mono"><%= @adapter.base_url %></dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Description</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @adapter.description.presence || "—" %></dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Rate Limit</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @adapter.rate_limit.present? ? "#{@adapter.rate_limit} req/min" : "—" %></dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Timeout</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @adapter.timeout.present? ? "#{@adapter.timeout}s" : "—" %></dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Owner</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @adapter.user.full_name %></dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+
+  <% if @recent_logs.any? %>
+    <div class="bg-white shadow rounded-lg">
+      <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Recent Execution Logs</h3>
+        <ul class="divide-y divide-gray-200">
+          <% @recent_logs.each do |log| %>
+            <li class="py-3 flex justify-between items-center">
+              <div class="flex items-center space-x-3">
+                <%= render "shared/status_badge", status: log.status %>
+                <span class="text-sm text-gray-900">
+                  <%= log.endpoint&.name || "Endpoint ##{log.endpoint_id}" %>
+                </span>
+              </div>
+              <span class="text-xs text-gray-500"><%= log.created_at.strftime("%b %d, %H:%M") %></span>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="flex justify-between">
+    <%= link_to "Edit Adapter", edit_adapter_path(@adapter),
+          class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" %>
+    <% unless @adapter.archived? %>
+      <%= button_to "Archive Adapter", archive_adapter_path(@adapter), method: :patch,
+            form: { data: { turbo_confirm: "Are you sure you want to archive this adapter?" } },
+            class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700" %>
+    <% end %>
+  </div>
+</div>

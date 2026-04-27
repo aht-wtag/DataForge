@@ -14,4 +14,17 @@ Rails.application.routes.draw do
       end
     end
   end
+
+  resources :adapters, except: [:destroy] do
+    member do
+      patch :archive
+    end
+
+    resources :endpoints, except: [:destroy] do
+      resources :transformation_rules, except: [:destroy]
+    end
+
+    resources :credentials
+    resources :job_schedules, except: [:destroy]
+  end
 end

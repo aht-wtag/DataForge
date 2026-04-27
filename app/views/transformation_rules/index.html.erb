@@ -1,0 +1,82 @@
+<% page_title "Transformation Rules — #{@endpoint.name}" %>
+
+<div class="space-y-6">
+  <div class="sm:flex sm:items-center sm:justify-between">
+    <h1 class="text-2xl font-bold text-gray-900">Transformation Rules</h1>
+    <% if policy(TransformationRule).create? %>
+      <%= link_to "New Rule", new_adapter_endpoint_transformation_rule_path(@adapter, @endpoint),
+            class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700" %>
+    <% end %>
+  </div>
+
+  <% if @transformation_rules.any? %>
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pos</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Source Path</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Target Field</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Target Type</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Default</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Enabled</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @transformation_rules.each do |rule| %>
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
+                <%= rule.position %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">
+                <%= link_to rule.source_path, adapter_endpoint_transformation_rule_path(@adapter, @endpoint, rule), class: "hover:text-blue-600" %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">
+                <%= rule.target_field %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                  <%= rule.target_type %>
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <%= rule.default_value.presence || "—" %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <% if rule.enabled? %>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Yes</span>
+                <% else %>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">No</span>
+                <% end %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+                <div class="flex justify-end space-x-2">
+                  <%= link_to "Edit", edit_adapter_endpoint_transformation_rule_path(@adapter, @endpoint, rule),
+                        class: "text-blue-600 hover:text-blue-900" %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <% if @transformation_rules.total_pages > 1 %>
+      <div class="mt-4">
+        <%= paginate @transformation_rules %>
+      </div>
+    <% end %>
+  <% else %>
+    <%= render "shared/empty_state",
+          title: "No transformation rules yet",
+          description: "Define rules to transform extracted data into your target schema.",
+          button_text: "New Rule",
+          button_path: new_adapter_endpoint_transformation_rule_path(@adapter, @endpoint) %>
+  <% end %>
+
+  <div class="flex justify-start">
+    <%= link_to "Back to Endpoint", adapter_endpoint_path(@adapter, @endpoint),
+          class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" %>
+  </div>
+</div>

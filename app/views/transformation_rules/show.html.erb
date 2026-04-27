@@ -1,0 +1,52 @@
+<% page_title "Transformation Rule" %>
+
+<div class="space-y-6">
+  <div class="bg-white shadow rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+      <h3 class="text-lg font-medium text-gray-900 mb-4">Rule Details</h3>
+      <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Source Path</dt>
+          <dd class="mt-1 text-sm text-gray-900 font-mono"><%= @transformation_rule.source_path %></dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Target Field</dt>
+          <dd class="mt-1 text-sm text-gray-900 font-mono"><%= @transformation_rule.target_field %></dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Target Type</dt>
+          <dd class="mt-1">
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+              <%= @transformation_rule.target_type %>
+            </span>
+          </dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Position</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @transformation_rule.position %></dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Default Value</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @transformation_rule.default_value.presence || "—" %></dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Enabled</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @transformation_rule.enabled? ? "Yes" : "No" %></dd>
+        </div>
+        <div class="sm:col-span-2">
+          <dt class="text-sm font-medium text-gray-500">Transformation Expression</dt>
+          <dd class="mt-1 text-sm text-gray-900 font-mono bg-gray-50 p-3 rounded">
+            <%= @transformation_rule.transformation_expression.presence || "—" %>
+          </dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+
+  <div class="flex justify-start space-x-3">
+    <%= link_to "Edit", edit_adapter_endpoint_transformation_rule_path(@adapter, @endpoint, @transformation_rule),
+          class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700" %>
+    <%= link_to "Back", adapter_endpoint_transformation_rules_path(@adapter, @endpoint),
+          class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" %>
+  </div>
+</div>
