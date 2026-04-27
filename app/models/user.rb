@@ -14,6 +14,10 @@ class User < ApplicationRecord
   validates_confirmation_of :password, if: :password_required?
   validate :password_complexity
 
+  def full_name
+    "#{first_name} #{last_name}".strip
+  end
+
   private
 
   def password_required?
