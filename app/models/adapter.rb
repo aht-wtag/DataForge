@@ -5,6 +5,7 @@ class Adapter < ApplicationRecord
   has_many :job_schedules, dependent: :destroy
   has_many :execution_logs, dependent: :destroy
   has_many :stored_data, dependent: :destroy
+  has_many :adapter_runs, dependent: :destroy
   has_one_attached :logo
 
   enum status: { active: 0, running: 1, error: 2, disabled: 3 }

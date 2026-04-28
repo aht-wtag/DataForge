@@ -10,9 +10,27 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_04_22_150010) do
+ActiveRecord::Schema[7.1].define(version: 2026_04_29_000005) do
   # These are extensions that must be enabled in order to support this database
+  enable_extension "pgcrypto"
   enable_extension "plpgsql"
+
+  create_table "adapter_runs", force: :cascade do |t|
+    t.bigint "adapter_id", null: false
+    t.string "name", null: false
+    t.string "state", default: "new", null: false
+    t.integer "progress", default: 0, null: false
+    t.integer "timeout"
+    t.jsonb "result"
+    t.text "error"
+    t.text "stack"
+    t.datetime "ended_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["adapter_id"], name: "index_adapter_runs_on_adapter_id"
+    t.index ["created_at"], name: "index_adapter_runs_on_created_at"
+    t.index ["state"], name: "index_adapter_runs_on_state"
+  end
 
   create_table "adapters", force: :cascade do |t|
     t.bigint "user_id", null: false
@@ -56,6 +74,14 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_22_150010) do
     t.index ["user_id"], name: "index_data_exports_on_user_id"
   end
 
+  create_table "diloc_statuses", force: :cascade do |t|
+    t.integer "state", default: 0, null: false
+    t.datetime "last_synced"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.check_constraint "id = 1", name: "chk_diloc_status_single_row"
+  end
+
   create_table "endpoints", force: :cascade do |t|
     t.bigint "adapter_id", null: false
     t.integer "http_method", default: 0, null: false
@@ -92,6 +118,79 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_22_150010) do
     t.index ["job_schedule_id"], name: "index_execution_logs_on_job_schedule_id"
   end
 
+  create_table "exp_oevpad_train_operationdays", force: :cascade do |t|
+    t.uuid "adapter_id", null: false
+    t.text "code_op_period", null: false
+    t.datetime "date", null: false
+    t.string "period_key", null: false
+    t.uuid "adapter_id_timetable_period", null: false
+    t.boolean "deleted", default: false, null: false
+    t.datetime "deleted_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["date"], name: "idx_exp_oevpad_train_operationdays_on_date", unique: true
+  end
+
+  create_table "exp_oevpad_train_timetableperiods", force: :cascade do |t|
+    t.uuid "adapter_id", null: false
+    t.date "date_period_start", null: false
+    t.date "date_period_end", null: false
+    t.boolean "deleted", default: false, null: false
+    t.datetime "deleted_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["adapter_id"], name: "idx_exp_oevpad_train_timetableperiods_on_adapter_id", unique: true
+  end
+
+  create_table "exp_oevpad_train_trainlocations", force: :cascade do |t|
+    t.uuid "adapter_id", null: false
+    t.uuid "adapter_id_train", null: false
+    t.uuid "adapter_id_location", null: false
+    t.string "loc_abbreviation", null: false
+    t.uuid "adapter_id_timetable_period", null: false
+    t.string "time_arrival"
+    t.integer "offset_arrival", default: 0, null: false
+    t.string "time_departure"
+    t.integer "offset_departure"
+    t.string "track_info"
+    t.string "type_stop", null: false
+    t.integer "sort", default: 0, null: false
+    t.boolean "deleted", default: false, null: false
+    t.datetime "deleted_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["adapter_id"], name: "idx_exp_oevpad_train_trainlocations_on_adapter_id", unique: true
+  end
+
+  create_table "exp_oevpad_train_trains", force: :cascade do |t|
+    t.uuid "adapter_id", null: false
+    t.string "train_nr", null: false
+    t.string "train_part"
+    t.text "code_op_period", null: false
+    t.datetime "break_series"
+    t.uuid "adapter_id_timetable_period", null: false
+    t.boolean "on_request", default: false, null: false
+    t.boolean "deleted", default: false, null: false
+    t.datetime "deleted_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["adapter_id"], name: "idx_exp_oevpad_train_trains_on_adapter_id", unique: true
+  end
+
+  create_table "imp_diloc_trains", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.date "day", null: false
+    t.string "train_nr", null: false
+    t.string "stop_point_ref"
+    t.string "stop_point_name"
+    t.string "stop_type"
+    t.datetime "aimed_arrival_time"
+    t.datetime "aimed_departure_time"
+    t.integer "sort", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["train_nr", "day", "stop_point_ref"], name: "idx_imp_diloc_trains_on_train_nr_day_stop_point_ref"
+  end
+
   create_table "job_schedules", force: :cascade do |t|
     t.bigint "adapter_id", null: false
     t.bigint "endpoint_id", null: false
@@ -115,6 +214,79 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_22_150010) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["version"], name: "index_schema_versions_on_version", unique: true
+  end
+
+  create_table "std_train_locations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "abbreviation", null: false
+    t.string "name", null: false
+    t.string "provider", default: "diloc", null: false
+    t.string "provider_id", null: false
+    t.boolean "deleted", default: false, null: false
+    t.datetime "deleted_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["provider_id"], name: "idx_std_train_locations_on_provider_id", unique: true
+  end
+
+  create_table "std_train_operationperiods", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "code", null: false
+    t.boolean "deleted", default: false, null: false
+    t.datetime "deleted_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "idx_std_train_operationperiods_on_code", unique: true
+  end
+
+  create_table "std_train_operationperiods_days", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "std_train_operationperiod_id", null: false
+    t.date "date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["std_train_operationperiod_id", "date"], name: "idx_std_train_opperiods_days_on_period_id_and_date", unique: true
+    t.index ["std_train_operationperiod_id"], name: "idx_on_std_train_operationperiod_id_304aabab2e"
+  end
+
+  create_table "std_train_timetableperiods", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.date "date_period_start", null: false
+    t.date "date_period_end", null: false
+    t.boolean "deleted", default: false, null: false
+    t.datetime "deleted_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "std_train_timetables", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "std_train_train_id", null: false
+    t.uuid "std_train_location_id", null: false
+    t.uuid "std_train_timetableperiod_id", null: false
+    t.string "time_arrival"
+    t.string "time_departure"
+    t.integer "offset_departure", default: 0, null: false
+    t.string "type_stop"
+    t.integer "sort", default: 0, null: false
+    t.string "provider_id", null: false
+    t.boolean "deleted", default: false, null: false
+    t.datetime "deleted_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["std_train_location_id"], name: "index_std_train_timetables_on_std_train_location_id"
+    t.index ["std_train_timetableperiod_id"], name: "index_std_train_timetables_on_std_train_timetableperiod_id"
+    t.index ["std_train_train_id", "std_train_location_id", "std_train_timetableperiod_id", "provider_id"], name: "idx_std_train_timetables_unique", unique: true
+    t.index ["std_train_train_id"], name: "index_std_train_timetables_on_std_train_train_id"
+  end
+
+  create_table "std_train_trains", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "train_nr", null: false
+    t.uuid "std_train_operationperiod_id", null: false
+    t.string "break_series"
+    t.uuid "std_train_timetableperiod_id", null: false
+    t.boolean "deleted", default: false, null: false
+    t.datetime "deleted_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["std_train_operationperiod_id"], name: "index_std_train_trains_on_std_train_operationperiod_id"
+    t.index ["std_train_timetableperiod_id"], name: "index_std_train_trains_on_std_train_timetableperiod_id"
+    t.index ["train_nr", "std_train_operationperiod_id"], name: "idx_std_train_trains_on_train_nr_and_op_period_id", unique: true
   end
 
   create_table "stored_data", force: :cascade do |t|
@@ -177,6 +349,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_22_150010) do
     t.index ["unlock_token"], name: "index_users_on_unlock_token", unique: true
   end
 
+  add_foreign_key "adapter_runs", "adapters"
   add_foreign_key "adapters", "users"
   add_foreign_key "credentials", "adapters"
   add_foreign_key "data_exports", "adapters"
@@ -187,6 +360,12 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_22_150010) do
   add_foreign_key "execution_logs", "job_schedules"
   add_foreign_key "job_schedules", "adapters"
   add_foreign_key "job_schedules", "endpoints"
+  add_foreign_key "std_train_operationperiods_days", "std_train_operationperiods"
+  add_foreign_key "std_train_timetables", "std_train_locations"
+  add_foreign_key "std_train_timetables", "std_train_timetableperiods"
+  add_foreign_key "std_train_timetables", "std_train_trains"
+  add_foreign_key "std_train_trains", "std_train_operationperiods"
+  add_foreign_key "std_train_trains", "std_train_timetableperiods"
   add_foreign_key "stored_data", "adapters"
   add_foreign_key "stored_data", "endpoints"
   add_foreign_key "stored_data", "execution_logs"
