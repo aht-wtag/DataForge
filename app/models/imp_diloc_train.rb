@@ -1,4 +1,4 @@
-class ImpDilocTrain < ApplicationRecord
+class ImpDiLocTrain < ApplicationRecord
   self.table_name = 'imp_diloc_trains'
 
   validates :day, presence: true

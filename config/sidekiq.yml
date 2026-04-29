@@ -20,3 +20,8 @@
       class: "ExportCleanupWorker"
       queue: default
       enabled: false
+    diloc_adapter:
+      cron: "0 */2 * * *"
+      class: "DiLocAdapterJob"
+      queue: ETL
+      enabled: false

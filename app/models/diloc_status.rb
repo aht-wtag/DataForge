@@ -1,4 +1,4 @@
-class DilocStatus < ApplicationRecord
+class DiLocStatus < ApplicationRecord
   enum state: { failure: 0, success: 1 }
 
   validates :id, inclusion: { in: [1], message: 'only a single status row is allowed' }

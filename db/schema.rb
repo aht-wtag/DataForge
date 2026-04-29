@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_04_29_000005) do
+ActiveRecord::Schema[7.1].define(version: 2026_04_29_211948) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -43,6 +43,9 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_29_000005) do
     t.datetime "archived_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "adapter_type", default: 0, null: false
+    t.jsonb "config", default: {}, null: false
+    t.index ["adapter_type"], name: "index_adapters_on_adapter_type"
     t.index ["user_id", "archived_at"], name: "index_adapters_on_user_id_and_archived_at"
     t.index ["user_id"], name: "index_adapters_on_user_id"
   end

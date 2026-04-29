@@ -37,6 +37,15 @@
           <dd class="mt-1 text-sm text-gray-900"><%= @adapter.name %></dd>
         </div>
         <div>
+          <dt class="text-sm font-medium text-gray-500">Adapter Type</dt>
+          <dd class="mt-1">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+              <%= @adapter.diloc? ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800' %>">
+              <%= @adapter.adapter_type_label %>
+            </span>
+          </dd>
+        </div>
+        <div>
           <dt class="text-sm font-medium text-gray-500">Base URL</dt>
           <dd class="mt-1 text-sm text-gray-900 font-mono"><%= @adapter.base_url %></dd>
         </div>
@@ -56,6 +65,31 @@
           <dt class="text-sm font-medium text-gray-500">Owner</dt>
           <dd class="mt-1 text-sm text-gray-900"><%= @adapter.user.full_name %></dd>
         </div>
+      </dl>
+
+      <% if @adapter.diloc? %>
+        <div class="mt-6 pt-6 border-t border-gray-200">
+          <h4 class="text-md font-medium text-gray-900 mb-3">DiLoc Configuration</h4>
+          <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
+            <div>
+              <dt class="text-sm font-medium text-gray-500">DiLoc Base URL</dt>
+              <dd class="mt-1 text-sm text-gray-900 font-mono"><%= @adapter.config["DiLocBaseurl"].presence || "—" %></dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">API Key</dt>
+              <dd class="mt-1 text-sm text-gray-900"><%= @adapter.config["apiKey"].present? ? "••••••••" : "—" %></dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">OeVPAD Cockpit URL</dt>
+              <dd class="mt-1 text-sm text-gray-900 font-mono"><%= @adapter.config["oevpadCockpiturl"].presence || "—" %></dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Cockpit API Key</dt>
+              <dd class="mt-1 text-sm text-gray-900"><%= @adapter.config["CockpitApiKey"].present? ? "••••••••" : "—" %></dd>
+            </div>
+          </dl>
+        </div>
+      <% end %>
       </dl>
     </div>
   </div>
