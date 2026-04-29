@@ -1,4 +1,4 @@
-<%= form_with(model: adapter, local: true, class: "space-y-6") do |form| %>
+<%= form_with(model: adapter, local: true, class: "space-y-6", data: { controller: "adapter-form" }) do |form| %>
   <% if adapter.errors.any? %>
     <div class="rounded-md bg-red-50 p-4">
       <h2 class="text-sm font-medium text-red-800"><%= pluralize(adapter.errors.count, "error") %> prohibited this adapter from being saved:</h2>
@@ -14,6 +14,14 @@
     <div class="sm:col-span-4">
       <%= form.label :name, class: "block text-sm font-medium text-gray-700" %>
       <%= form.text_field :name,
+            class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border px-3 py-2" %>
+    </div>
+
+    <div class="sm:col-span-4">
+      <%= form.label :adapter_type, "Adapter Type", class: "block text-sm font-medium text-gray-700" %>
+      <%= form.select :adapter_type, Adapter.adapter_types.keys.map { |t| [t.humanize, t] },
+            { prompt: "Select adapter type..." },
+            data: { adapter_type_select: "true", action: "change->adapter-form#toggleFields" },
             class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border px-3 py-2" %>
     </div>
 
@@ -45,6 +53,77 @@
       <%= form.label :timeout, "Timeout (seconds)", class: "block text-sm font-medium text-gray-700" %>
       <%= form.number_field :timeout, min: 1, max: 300,
             class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border px-3 py-2" %>
+    </div>
+  </div>
+
+  <div data-adapter-form-target="dilocFields" style="display: <%= adapter.diloc? ? 'block' : 'none' %>;">
+    <div class="mt-6 pt-6 border-t border-gray-200">
+      <h3 class="text-lg font-medium text-gray-900 mb-4">DiLoc Configuration</h3>
+      <p class="text-sm text-gray-500 mb-4">These fields are required when the adapter type is DiLoc.</p>
+
+      <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+        <div class="sm:col-span-4">
+          <%= form.label "config_DiLocBaseurl", "DiLoc Base URL", class: "block text-sm font-medium text-gray-700" %>
+          <span class="text-red-500 text-xs">*</span>
+          <%= form.url_field "config[DiLocBaseurl]",
+                value: adapter.config["DiLocBaseurl"],
+                placeholder: "https://api.diloc.example.com",
+                data: { required: "true" },
+                class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border px-3 py-2 font-mono" %>
+        </div>
+
+        <div class="sm:col-span-4">
+          <%= form.label "config_apiKey", "API Key", class: "block text-sm font-medium text-gray-700" %>
+          <span class="text-red-500 text-xs">*</span>
+          <%= form.password_field "config[apiKey]",
+                value: adapter.config["apiKey"],
+                data: { required: "true" },
+                class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border px-3 py-2" %>
+        </div>
+
+        <div class="sm:col-span-4">
+          <%= form.label "config_oevpadCockpiturl", "OeVPAD Cockpit URL", class: "block text-sm font-medium text-gray-700" %>
+          <span class="text-red-500 text-xs">*</span>
+          <%= form.url_field "config[oevpadCockpiturl]",
+                value: adapter.config["oevpadCockpiturl"],
+                placeholder: "https://cockpit.oevpad.example.com",
+                data: { required: "true" },
+                class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border px-3 py-2 font-mono" %>
+        </div>
+
+        <div class="sm:col-span-4">
+          <%= form.label "config_CockpitApiKey", "Cockpit API Key", class: "block text-sm font-medium text-gray-700" %>
+          <span class="text-red-500 text-xs">*</span>
+          <%= form.password_field "config[CockpitApiKey]",
+                value: adapter.config["CockpitApiKey"],
+                data: { required: "true" },
+                class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border px-3 py-2" %>
+        </div>
+
+        <div class="sm:col-span-3">
+          <%= form.label "config_startDateTime", "Start Date/Time (optional override)", class: "block text-sm font-medium text-gray-700" %>
+          <%= form.text_field "config[startDateTime]",
+                value: adapter.config["startDateTime"],
+                placeholder: "2026-01-01T00:00:00",
+                class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border px-3 py-2 font-mono" %>
+        </div>
+
+        <div class="sm:col-span-3">
+          <%= form.label "config_endDateTime", "End Date/Time (optional override)", class: "block text-sm font-medium text-gray-700" %>
+          <%= form.text_field "config[endDateTime]",
+                value: adapter.config["endDateTime"],
+                placeholder: "2026-01-06T00:00:00",
+                class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border px-3 py-2 font-mono" %>
+        </div>
+
+        <div class="sm:col-span-2">
+          <%= form.label "config_offsetHours", "Offset Hours", class: "block text-sm font-medium text-gray-700" %>
+          <%= form.number_field "config[offsetHours]",
+                value: adapter.config["offsetHours"],
+                placeholder: "24",
+                class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border px-3 py-2" %>
+        </div>
+      </div>
     </div>
   </div>
 

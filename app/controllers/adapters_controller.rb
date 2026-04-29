@@ -63,6 +63,9 @@ class AdaptersController < ApplicationController
   end
 
   def adapter_params
-    params.require(:adapter).permit(:name, :base_url, :description, :rate_limit, :timeout, :status)
+    params.require(:adapter).permit(
+      :name, :base_url, :description, :rate_limit, :timeout, :status, :adapter_type,
+      config: %i[DiLocBaseurl apiKey oevpadCockpiturl CockpitApiKey startDateTime endDateTime offsetHours oevpadCockpiturlSslRejectUnauthorized]
+    )
   end
 end
