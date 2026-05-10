@@ -1,8 +1,8 @@
 <div class="w-full max-w-md">
-  <div class="bg-white shadow rounded-lg p-8">
-    <h2 class="text-2xl font-bold text-gray-900 text-center mb-8">Create your account</h2>
+  <%= render "shared/logo", subtitle: "Create your account" %>
 
-    <%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
+  <div class="bg-white shadow rounded-lg p-8">
+    <%= form_for(resource, as: resource_name, url: registration_path(resource_name), data: { controller: "signup-validation" }) do |f| %>
       <%= render "devise/shared/error_messages", resource: resource %>
 
       <div class="space-y-4">
@@ -20,25 +20,29 @@
         <div>
           <%= f.label :email, class: "block text-sm font-medium text-gray-700" %>
           <%= f.email_field :email, autocomplete: "email",
+                data: { signup_validation_target: "email", action: "blur->signup-validation#checkEmail" },
                 class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border px-3 py-2" %>
+          <p data-signup-validation-target="emailFeedback" class="text-xs mt-1"></p>
         </div>
 
         <div>
           <%= f.label :password, class: "block text-sm font-medium text-gray-700" %>
-          <% if @minimum_password_length %>
-            <span class="text-xs text-gray-500">(<%= @minimum_password_length %> characters minimum)</span>
-          <% end %>
+          <span class="text-xs text-gray-500">(min. 8 chars: uppercase, lowercase, and a digit)</span>
           <%= f.password_field :password, autocomplete: "new-password",
+                data: { signup_validation_target: "password", action: "input->signup-validation#checkPasswordMatch" },
                 class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border px-3 py-2" %>
         </div>
 
         <div>
           <%= f.label :password_confirmation, class: "block text-sm font-medium text-gray-700" %>
           <%= f.password_field :password_confirmation, autocomplete: "new-password",
+                data: { signup_validation_target: "passwordConfirmation", action: "input->signup-validation#checkPasswordMatch" },
                 class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border px-3 py-2" %>
+          <p data-signup-validation-target="matchFeedback" class="text-xs mt-1"></p>
         </div>
 
-        <%= f.submit "Create Account", class: "w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+        <%= f.submit "Create Account", data: { signup_validation_target: "submit" },
+              class: "w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
       </div>
     <% end %>
 
